@@ -2,6 +2,7 @@ venv
 *.pyc
 .DS_Store
 config/config.json
+app_w_config.py
 build
 dist
 app.spec
