@@ -12,4 +12,4 @@ An experimental DDW GUI
 `python app.py`
 
 ## To bundle:
-`pyinstaller --add-data "config:config" --add-data "static:static" --add-data "templates:templates" app.py`
+`pyinstaller -F --add-data "config;config" --add-data "static;static" --add-data "templates;templates" app.py`

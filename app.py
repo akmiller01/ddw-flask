@@ -59,7 +59,7 @@ def table(table_name):
             return render_template('error.html',error="Table does not exist.")
         else:
             #Select all from the given table_name
-            cur.execute("""SELECT * FROM {}""".format(table_name))
+            cur.execute('SELECT * FROM "{}"'.format(table_name))
             col_names = [desc[0] for desc in cur.description]
             table_rows = cur.fetchall()
             conn.close()
@@ -85,7 +85,7 @@ def csv(table_name):
             return render_template('error.html',error="Table does not exist.")
         else:
             #Select all from the given table_name
-            cur.execute("""SELECT * FROM {}""".format(table_name))
+            cur.execute('SELECT * FROM "{}"'.format(table_name))
             col_names = [desc[0] for desc in cur.description]
             table_rows = cur.fetchall()
             conn.close()
