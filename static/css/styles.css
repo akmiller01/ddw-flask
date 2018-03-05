@@ -23,12 +23,12 @@ h1 {
   overflow:hidden;
 }
 
-.container-full a {
-  color:#efefef;
-  text-decoration:none;
-}
-
 .v-center {
   margin-top:7%;
+}
+
+.btn{
+	margin-bottom:15px;
+	margin-top:15px;
 }
   

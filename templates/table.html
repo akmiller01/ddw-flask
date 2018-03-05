@@ -4,7 +4,7 @@
 <head>
   <meta http-equiv="content-type" content="text/html; charset=UTF-8">
   <meta charset="utf-8">
-  <title>DDW</title>
+  <title>{{table_name}}</title>
   <meta name="generator" content="Bootply" />
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
   <link href="{{ url_for('static', filename='css/bootstrap.min.css') }}" rel="stylesheet">
@@ -15,21 +15,23 @@
   <div class="container-full">
     <div class="row">
       <div class="col-lg-12">
-          <h1>DDW tables</h1>
+          <h1>{{table_name}}</h1>
+          <a href="/csv/{{table_name}}" class="btn btn-primary" role="button">Download CSV</a>
+          <a href="/" class="btn btn-primary" role="button">Back</a>
           <table class="table table-bordered table-dark">
             <!--Header-->
             <thead class="thead-dark">
               <tr>
-                  <th scope="col">Table Schema</th>
-                  <th scope="col">Table Name</th>
-                  <th scope="col">CSV Download</th>
+                {% for col_name in col_names %}
+                  <th scope="col">{{col_name}}</th>
+                {% endfor %}
               </tr>
             </thead>
-            {% for table_schema, table_name in table_names %}
+            {% for row in table_rows %}
             <tr>
-              <td>{{table_schema}}</td>
-              <td><a href="/table/{{table_name}}">{{table_name}}</a></td>
-              <td><a href="/csv/{{table_name}}">Download</a></td>
+              {% for cell in row %}
+              <td>{{cell}}</td>
+              {% endfor %}
             </tr>
             {% endfor %}
           </table>
