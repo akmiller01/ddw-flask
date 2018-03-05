@@ -49,12 +49,21 @@ def table(table_name):
     try:
         conn = psycopg2.connect("dbname='{}' user='{}' host='{}' port='{}' password='{}'".format(conf["dbname"],conf["user"],conf["host"],conf["port"],conf["password"],))
         cur = conn.cursor()
-        #Select all from the given table_name
-        cur.execute("""SELECT * FROM {}""".format(table_name))
-        col_names = [desc[0] for desc in cur.description]
-        table_rows = cur.fetchall()
-        conn.close()
-        return render_template('table.html',table_name=table_name,col_names=col_names,table_rows=table_rows)
+        #Verify table exists
+        cmd = "SELECT 1 FROM information_schema.tables WHERE table_schema NOT IN ('pg_catalog','information_schema') and table_name=%s LIMIT 1"
+        cur.execute(cmd,(table_name,))
+        table_exists = cur.fetchall()
+        if len(table_exists) < 1:
+            #Table does not exist
+            conn.close()
+            return render_template('error.html',error="Table does not exist.")
+        else:
+            #Select all from the given table_name
+            cur.execute("""SELECT * FROM {}""".format(table_name))
+            col_names = [desc[0] for desc in cur.description]
+            table_rows = cur.fetchall()
+            conn.close()
+            return render_template('table.html',table_name=table_name,col_names=col_names,table_rows=table_rows)
     except:
         return render_template('table.html',table_name=table_name,col_names=[],table_rows=[])
     
@@ -66,19 +75,28 @@ def csv(table_name):
     try:
         conn = psycopg2.connect("dbname='{}' user='{}' host='{}' port='{}' password='{}'".format(conf["dbname"],conf["user"],conf["host"],conf["port"],conf["password"],))
         cur = conn.cursor()
-        #Select all from the given table_name
-        cur.execute("""SELECT * FROM {}""".format(table_name))
-        col_names = [desc[0] for desc in cur.description]
-        table_rows = cur.fetchall()
-        conn.close()
-        si = StringIO.StringIO()
-        cw = csvwriter(si)
-        cw.writerow(col_names)
-        cw.writerows(table_rows)
-        output = make_response(si.getvalue())
-        output.headers["Content-Disposition"] = "attachment; filename={}.csv".format(table_name)
-        output.headers["Content-type"] = "text/csv"
-        return output
+        #Verify table exists
+        cmd = "SELECT 1 FROM information_schema.tables WHERE table_schema NOT IN ('pg_catalog','information_schema') and table_name=%s LIMIT 1"
+        cur.execute(cmd,(table_name,))
+        table_exists = cur.fetchall()
+        if len(table_exists) < 1:
+            #Table does not exist
+            conn.close()
+            return render_template('error.html',error="Table does not exist.")
+        else:
+            #Select all from the given table_name
+            cur.execute("""SELECT * FROM {}""".format(table_name))
+            col_names = [desc[0] for desc in cur.description]
+            table_rows = cur.fetchall()
+            conn.close()
+            si = StringIO.StringIO()
+            cw = csvwriter(si)
+            cw.writerow(col_names)
+            cw.writerows(table_rows)
+            output = make_response(si.getvalue())
+            output.headers["Content-Disposition"] = "attachment; filename={}.csv".format(table_name)
+            output.headers["Content-type"] = "text/csv"
+            return output
     except:
         return render_template('error.html',error=traceback.format_exc())
     
