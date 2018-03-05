@@ -8,17 +8,18 @@ from csv import writer as csvwriter
 import sys
 import traceback
 import pdb
-
-#Initialize configuration
-with open("static/config/config.json") as f:
-    conf = json.load(f)
     
 #Initialize app, checking if frozen in exe
 if getattr(sys, 'frozen', False):                                                                                                                                     
     template_folder = os.path.join(sys.executable, '..','templates')                                                                                                  
-    static_folder = os.path.join(sys.executable, '..','static')                                                                                                       
+    static_folder = os.path.join(sys.executable, '..','static')
+    config_folder = os.path.join(sys.executable, '..','config','config.json')
+    with open(config_folder) as f:
+        conf = json.load(f)
     app = Flask(__name__, template_folder = template_folder,static_folder = static_folder)
 else:
+    with open('config/config.json') as f:
+        conf = json.load(f)
     app = Flask(__name__)
 #Initialize cache
 cache = Cache(app,config={'CACHE_TYPE':'simple'})
