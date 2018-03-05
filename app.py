@@ -1,4 +1,4 @@
-from flask_cache import Cache
+from flask_caching import Cache
 from flask import Flask, render_template, request, make_response
 import json
 import psycopg2
