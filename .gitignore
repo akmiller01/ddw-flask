@@ -5,4 +5,4 @@ config/config.json
 ddw.py
 build
 dist
-app.spec
+*.spec
