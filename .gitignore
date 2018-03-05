@@ -6,3 +6,4 @@ ddw.py
 build
 dist
 *.spec
+*.zip
