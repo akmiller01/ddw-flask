@@ -10,11 +10,16 @@ import traceback
 import pdb
 
 #Initialize configuration
-with open("config.json") as f:
+with open("static/config/config.json") as f:
     conf = json.load(f)
     
-#Initialize app
-app = Flask(__name__)
+#Initialize app, checking if frozen in exe
+if getattr(sys, 'frozen', False):                                                                                                                                     
+    template_folder = os.path.join(sys.executable, '..','templates')                                                                                                  
+    static_folder = os.path.join(sys.executable, '..','static')                                                                                                       
+    app = Flask(__name__, template_folder = template_folder,static_folder = static_folder)
+else:
+    app = Flask(__name__)
 #Initialize cache
 cache = Cache(app,config={'CACHE_TYPE':'simple'})
 

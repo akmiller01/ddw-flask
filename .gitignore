@@ -1,4 +1,4 @@
 venv
 *.pyc
 .DS_Store
-config.json
+static/config/config.json
