@@ -2,6 +2,7 @@ from flask_caching import Cache
 from flask import Flask, render_template, request, make_response
 import json
 import psycopg2
+from psycopg2 import sql
 import webbrowser
 import StringIO
 from csv import writer as csvwriter
@@ -11,9 +12,9 @@ import pdb
     
 #Initialize app, checking if frozen in exe
 if getattr(sys, 'frozen', False):                                                                                                                                     
-    template_folder = os.path.join(sys.executable, '..','templates')                                                                                                  
-    static_folder = os.path.join(sys.executable, '..','static')
-    config_folder = os.path.join(sys.executable, '..','config','config.json')
+    template_folder = os.path.abspath(os.path.join(sys.executable, '..','templates'))                                                                                                  
+    static_folder = os.path.abspath(os.path.join(sys.executable, '..','static'))
+    config_folder = os.path.abspath(os.path.join(sys.executable, '..','config','config.json'))
     with open(config_folder) as f:
         conf = json.load(f)
     app = Flask(__name__, template_folder = template_folder,static_folder = static_folder)
@@ -59,13 +60,16 @@ def table(table_name):
             return render_template('error.html',error="Table does not exist.")
         else:
             #Select all from the given table_name
-            cur.execute('SELECT * FROM "{}"'.format(table_name))
+            cur.execute(
+                sql.SQL('SELECT * FROM {}')
+                    .format(sql.Identifier(table_name))
+            )
             col_names = [desc[0] for desc in cur.description]
             table_rows = cur.fetchall()
             conn.close()
             return render_template('table.html',table_name=table_name,col_names=col_names,table_rows=table_rows)
     except:
-        return render_template('table.html',table_name=table_name,col_names=[],table_rows=[])
+        return render_template('error.html',error=traceback.format_exc())
     
 #Route for CSVs
 @app.route('/csv/<table_name>')
@@ -85,7 +89,10 @@ def csv(table_name):
             return render_template('error.html',error="Table does not exist.")
         else:
             #Select all from the given table_name
-            cur.execute('SELECT * FROM "{}"'.format(table_name))
+            cur.execute(
+                sql.SQL('SELECT * FROM {}')
+                    .format(sql.Identifier(table_name))
+            )
             col_names = [desc[0] for desc in cur.description]
             table_rows = cur.fetchall()
             conn.close()
