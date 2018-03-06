@@ -5,7 +5,7 @@ import psycopg2
 from psycopg2 import sql
 import webbrowser
 import StringIO
-from csv import writer as csvwriter
+from unicodecsv import writer as csvwriter
 import sys
 import traceback
 import pdb
@@ -67,6 +67,7 @@ def table(table_name):
             col_names = [desc[0] for desc in cur.description]
             table_rows = cur.fetchall()
             conn.close()
+            table_rows = [[unicode(cell,'utf-8') if isinstance(cell,basestring) else cell for cell in row] for row in table_rows]
             return render_template('table.html',table_name=table_name,col_names=col_names,table_rows=table_rows)
     except:
         return render_template('error.html',error=traceback.format_exc())
@@ -96,8 +97,9 @@ def csv(table_name):
             col_names = [desc[0] for desc in cur.description]
             table_rows = cur.fetchall()
             conn.close()
+            table_rows = [[unicode(cell,'utf-8') if isinstance(cell,basestring) else cell for cell in row] for row in table_rows]
             si = StringIO.StringIO()
-            cw = csvwriter(si)
+            cw = csvwriter(si,encoding='latin-1')
             cw.writerow(col_names)
             cw.writerows(table_rows)
             output = make_response(si.getvalue())
