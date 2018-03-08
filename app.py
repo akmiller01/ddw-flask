@@ -34,13 +34,31 @@ def index():
         conn = psycopg2.connect("dbname='{}' user='{}' host='{}' port='{}' password='{}'".format(conf["dbname"],conf["user"],conf["host"],conf["port"],conf["password"],))
         cur = conn.cursor()
         #Query all table names
-        cur.execute("""SELECT table_schema, table_name FROM information_schema.tables WHERE table_schema NOT IN ('pg_catalog','information_schema') ORDER BY table_schema, table_name""")
+        cur.execute("SELECT table_schema, table_name FROM information_schema.tables WHERE table_schema NOT IN ('pg_catalog','information_schema') ORDER BY table_schema, table_name")
         table_names = cur.fetchall()
         #Flatten array of tuples
         conn.close()
         return render_template('index.html',table_names=table_names)
     except:
-        return render_template('index.html',table_names=[])
+        return render_template('error.html',error="Could not connect to database.")
+    
+# Schema filter
+@app.route('/schema/<table_schema>')
+@cache.cached(timeout=3600)
+def schema(table_schema):
+    #Try to connect
+    try:
+        conn = psycopg2.connect("dbname='{}' user='{}' host='{}' port='{}' password='{}'".format(conf["dbname"],conf["user"],conf["host"],conf["port"],conf["password"],))
+        cur = conn.cursor()
+        #Query select table names
+        cmd = "SELECT table_schema, table_name FROM information_schema.tables WHERE table_schema=%s and table_schema NOT IN ('pg_catalog','information_schema') ORDER BY table_name"
+        cur.execute(cmd,(table_schema,))
+        table_names = cur.fetchall()
+        #Flatten array of tuples
+        conn.close()
+        return render_template('schema.html',table_names=table_names,title=table_schema)
+    except:
+        return render_template('error.html',error="Schema does not exist or could not connect to database.")
     
 #Route for table displays
 @app.route('/table/<table_name>')
@@ -57,7 +75,7 @@ def table(table_name):
         if len(table_exists) < 1:
             #Table does not exist
             conn.close()
-            return render_template('error.html',error="Table does not exist.")
+            return render_template('error.html',error="Table does not exist or could not connect to database.")
         else:
             #Select all from the given table_name
             cur.execute(
@@ -87,7 +105,7 @@ def csv(table_name):
         if len(table_exists) < 1:
             #Table does not exist
             conn.close()
-            return render_template('error.html',error="Table does not exist.")
+            return render_template('error.html',error="Table does not exist or could not connect to database.")
         else:
             #Select all from the given table_name
             cur.execute(
